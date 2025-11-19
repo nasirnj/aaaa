@@ -1,0 +1,113 @@
+Yesss 🙌 that log is the money shot:
+
+```text
+Workflow Result:
+['Hello from the air-gapped box']
+```
+
+That means:
+
+* Your **Python 3.12 venv** is good
+* All deps (including the tricky `nvidia-nat*` ones) are installed correctly
+* `nat` can load `workflow.yml`, call tools, and return a final answer — exactly what you wanted on the offline box ✅
+
+The warning you saw earlier about dependency resolver is just pip being noisy; your runtime is clearly working.
+
+---
+
+## Optional small cleanup
+
+Inside the venv on `oel2`:
+
+```bash
+source .venv/bin/activate
+pip install --no-index --find-links=wheels "pip>=24.3.1"
+```
+
+That will satisfy `nvidia-nat`’s “pip>=24.3.1” requirement and stop that warning in future installs. Not strictly required now that everything is running, but nice to have.
+
+---
+
+## Reusable “playbook” for next time (short version)
+
+For any project you want to move to an air-gapped box:
+
+### On the **online** machine
+
+1. **Create & install into venv**
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt   # plus any git/local packages
+```
+
+2. **Freeze and prep wheel dir**
+
+```bash
+pip freeze > requirements_offline.txt
+mkdir -p wheels
+pip download -r requirements_offline.txt -d wheels
+```
+
+3. **Build wheels for local/git packages**
+
+From the project repo:
+
+```bash
+pip wheel --no-deps . -w wheels
+# plus any subpackages, like:
+pip wheel --no-deps ./packages/nvidia_nat_langchain -w wheels
+pip wheel --no-deps ./packages/nvidia_nat_test -w wheels
+```
+
+4. **Make sure build tools are included**
+
+```bash
+pip download pip setuptools wheel -d wheels
+```
+
+5. **Bundle**
+
+```bash
+tar czf project_offline_env.tar.gz wheels requirements_offline.txt
+```
+
+---
+
+### On the **air-gapped** machine
+
+1. **Unpack & create venv**
+
+```bash
+tar xzf project_offline_env.tar.gz
+python3.12 -m venv .venv
+source .venv/bin/activate
+```
+
+2. **Install any tricky local wheels first (like `nvidia-nat*`)**
+
+```bash
+pip install --no-index --find-links=wheels --no-deps \
+  nvidia-nat nvidia-nat-langchain nvidia-nat-test
+```
+
+3. **Install everything else**
+
+```bash
+pip install --no-index --find-links=wheels -r requirements_offline.txt
+```
+
+4. **Test your tool**
+
+```bash
+nat run --config_file workflow.yml --input "test message"
+```
+
+---
+
+If you want, next we can:
+
+* Turn this into a **bash script** you can reuse (`build_offline_bundle.sh` / `install_offline_bundle.sh`), or
+* Generalize it for other tools you might want to move to air-gapped servers (JupyterLab, etc.).
+

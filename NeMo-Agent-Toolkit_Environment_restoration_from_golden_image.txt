@@ -1,0 +1,142 @@
+Nice, now you’ve got a **golden working env** on `oel2` 👍
+From here you’ve got two practical ways to move it to another air-gapped box:
+
+---
+
+## Option 1 – Easiest: tar up the whole env + project (clone it “as is”)
+
+This is what you probably want if the **other air-gapped system is very similar**:
+
+* Same OS family / architecture (e.g. OEL9 x86_64)
+* Python 3.12 installed (even if you don’t use it directly)
+
+### 🔹 On the *source* air-gapped box (your working `oel2`)
+
+Assuming your stuff lives like this:
+
+```text
+/root/nemo-agent-toolkit/
+  ├── .venv/
+  ├── wheels/
+  ├── workflow.yml
+  ├── requirements_offline.txt
+  └── ...
+```
+
+1. (Optional) Clean a bit to shrink:
+
+```bash
+cd /root/nemo-agent-toolkit
+
+# remove caches to make tarball smaller (optional)
+rm -rf .venv/__pycache__ .venv/lib/python*/site-packages/*/__pycache__
+rm -rf .venv/.cache
+```
+
+2. Go one level **above** the project dir and create a tarball:
+
+```bash
+cd /root
+tar czf nemo_agent_toolkit_env.tar.gz nemo-agent-toolkit
+```
+
+Now you have:
+
+```text
+/root/nemo_agent_toolkit_env.tar.gz
+```
+
+Copy that file to USB / external disk.
+
+---
+
+### 🔹 On the *target* air-gapped box
+
+1. Put the tarball somewhere, e.g. `/root`:
+
+```bash
+cd /root
+cp /path/from/usb/nemo_agent_toolkit_env.tar.gz .
+tar xzf nemo_agent_toolkit_env.tar.gz
+```
+
+This should recreate:
+
+```text
+/root/nemo-agent-toolkit/
+  ├── .venv/
+  ├── wheels/
+  ├── workflow.yml
+  └── ...
+```
+
+2. Activate the cloned venv and test:
+
+```bash
+cd /root/nemo-agent-toolkit
+source .venv/bin/activate
+
+python --version      # should show Python 3.12.x
+pip list | head       # just to see packages
+
+nat run --config_file workflow.yml --input "test from new air-gapped box"
+```
+
+If that runs, you’re done 🎯
+
+> ⚠️ Tip:
+> To be extra safe, try to keep the **same path** (`/root/nemo-agent-toolkit`) on the new box. Python venvs can store some absolute paths; same prefix = fewer surprises.
+
+---
+
+## Option 2 – “Installer bundle” (rebuild venv from wheels)
+
+You already have a nice portable installer **inside** `nemo-agent-toolkit`:
+
+* `wheels/` – all wheels (including `nvidia-nat*`, `pip`, `wheel`, etc.)
+* `requirements_offline.txt` – all pinned deps
+
+If you ever want to rebuild the venv fresh on the new air-gapped box:
+
+### On the *target* box (after extracting the tarball)
+
+```bash
+cd /root/nemo-agent-toolkit
+
+# 1) Create a fresh venv with Python 3.12
+python3.12 -m venv .venv
+source .venv/bin/activate
+
+# 2) Install the NeMo wheels first (no deps, from local dir)
+pip install --no-index --find-links=wheels --no-deps \
+  nvidia-nat nvidia-nat-langchain nvidia-nat-test
+
+# 3) Install the rest from the offline requirements
+pip install --no-index --find-links=wheels -r requirements_offline.txt
+
+# 4) (Optional) Satisfy nvidia-nat's pip requirement
+pip install --no-index --find-links=wheels "pip>=24.3.1"
+
+# 5) Test
+nat run --config_file workflow.yml --input "hello from rebuilt env"
+```
+
+This gives you a **reproducible install** even if the venv gets broken or you change Python minor versions later.
+
+---
+
+## Which should you use?
+
+* **Want it working quickly, exactly like `oel2`?**
+  → Use **Option 1 (tar the whole project + .venv)**
+
+* **Want something reusable and “clean” for future machines?**
+  → Keep / reuse **Option 2 (wheels + requirements_offline installer)**
+
+If you tell me the typical paths you use (e.g. `/opt/ai/nemo-agent-toolkit` instead of `/root`), I can write you a small pair of scripts:
+
+* `make_offline_bundle.sh` (run on source)
+* `install_offline_bundle.sh` (run on target)
+
+so you just run two commands next time instead of all these steps.
+
