@@ -1,0 +1,385 @@
+[root@oel01 ~]# curl -LsSf https://astral.sh/uv/install.sh | sh
+downloading uv 0.9.10 x86_64-unknown-linux-gnu
+no checksums to verify
+installing to /root/.local/bin
+  uv
+  uvx
+everything's installed!
+[root@oel01 ~]# which uv
+/root/.local/bin/uv
+[root@oel01 ~]# echo $PATH
+/root/.local/bin:/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+
+
+[root@oel01 ~]# git clone https://github.com/NVIDIA/NeMo-Agent-Toolkit.git nemo-agent-toolkit
+cd nemo-agent-toolkit
+Cloning into 'nemo-agent-toolkit'...
+remote: Enumerating objects: 21113, done.
+remote: Counting objects: 100% (471/471), done.
+remote: Compressing objects: 100% (251/251), done.
+remote: Total 21113 (delta 330), reused 222 (delta 219), pack-reused 20642 (from 2)
+Receiving objects: 100% (21113/21113), 46.24 MiB | 24.28 MiB/s, done.
+Resolving deltas: 100% (12269/12269), done.
+Filtering content: 100% (82/82), 52.56 MiB | 25.33 MiB/s, done.
+
+[root@oel01 nemo-agent-toolkit]# git submodule update --init --recursive
+Submodule 'external/nat-ui' (https://github.com/NVIDIA/NeMo-Agent-Toolkit-UI.git) registered for path 'external/nat-ui'
+Cloning into '/root/nemo-agent-toolkit/external/nat-ui'...
+Submodule path 'external/nat-ui': checked out '8b91a7e80edf3c96971e49246f2fd42b30f2c412'
+
+[root@oel01 nemo-agent-toolkit]# git lfs install
+git lfs fetch
+git lfs pull
+Updated Git hooks.
+Git LFS initialized.
+fetch: Fetching reference refs/heads/develop
+
+
+
+Installed:
+  libnsl2-2.0.0-1.el9.x86_64                   mpdecimal-2.5.1-3.el9.x86_64     python3.12-3.12.9-1.el9_6.2.x86_64     python3.12-libs-3.12.9-1.el9_6.2.x86_64
+  python3.12-pip-wheel-23.2.1-4.el9.noarch
+
+Complete!
+[root@oel2 nemo-agent-toolkit]# uv venv --python 3.12 --seed .venv
+Using CPython 3.12.9 interpreter at: /usr/bin/python3.12
+Creating virtual environment with seed packages at: .venv
+ + pip==25.3
+Activate with: source .venv/bin/activate
+
+[root@oel2 nemo-agent-toolkit]# source .venv/bin/activate
+
+(.venv) [root@oel2 nemo-agent-toolkit]# uv sync
+Resolved 632 packages in 169ms
+      Built nvidia-nat-test @ file:///root/nemo-agent-toolkit/packages/nvidia_nat_test
+      Built nvidia-nat @ file:///root/nemo-agent-toolkit
+      Built wikipedia==1.4.0
+
+
+
+
+[root@oel01 nemo-agent-toolkit]# uv venv --python 3.12 --seed .venv
+source .venv/bin/activate
+Using CPython 3.12.12
+Creating virtual environment with seed packages at: .venv
+ + pip==25.3
+Activate with: source .venv/bin/activate
+
+
+
+× Failed to download `pandas==2.2.3`
+× Failed to download `uv==0.9.5`
+× Failed to download `onnxruntime==1.22.0`
+
+# fails due to alots of dependencies, and they show up one package at a time as 
+uv sync --all-groups --all-extras
+
+Resolved 632 packages in 72ms
+  × Failed to download `pandas==2.2.3`
+  ├─▶ Failed to extract archive: pandas-2.2.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  ├─▶ I/O operation failed during extraction
+  ╰─▶ Failed to download distribution due to network timeout. Try increasing UV_HTTP_TIMEOUT (current value: 30s).
+  help: `pandas` (v2.2.3) was included because `nvidia-nat[vanna]` depends on `nvidia-nat-vanna` which depends on `pandas`
+
+Manually installed:
+Installing collected packages: pandas
+Successfully installed pandas-2.2.3
+
+
+
+errors:
+(.venv) [root@oel01 nemo-agent-toolkit]# uv sync --all-groups --all-extras
+Resolved 632 packages in 154ms
+  × Failed to download `uv==0.9.5`
+  ├─▶ Failed to extract archive: uv-0.9.5-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  ├─▶ I/O operation failed during extraction
+  ╰─▶ Failed to download distribution due to network timeout. Try increasing UV_HTTP_TIMEOUT (current value: 30s).
+  help: `uv` (v0.9.5) was included because `nvidia-nat[crewai]` depends on `nvidia-nat-crewai` which depends on `crewai` (v0.193.2) which depends on `uv`
+
+Manually installed:
+Installing collected packages: uv
+Successfully installed uv-0.9.5
+
+
+(.venv) [root@oel01 nemo-agent-toolkit]# uv sync --all-groups --all-extras
+Resolved 632 packages in 141ms
+  × Failed to download `onnxruntime==1.22.0`
+  ├─▶ Failed to extract archive: onnxruntime-1.22.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
+  ├─▶ I/O operation failed during extraction
+  ╰─▶ Failed to download distribution due to network timeout. Try increasing UV_HTTP_TIMEOUT (current value: 30s).
+  help: `onnxruntime` (v1.22.0) was included because `nvidia-nat` depends on `pymilvus[model]` (v2.5.17) which depends on `pymilvus-model` (v0.3.2) which depends
+        on `onnxruntime`
+
+
+
+===========  EXPORT API KEY ===================
+export NVIDIA_API_KEY=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  
+echo "export NVIDIA_API_KEY=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" >> ~/.bashrc
+source ~/.bashrc
+
+
+============ Install NAT CORE ===========================
+
+Simply installed Core nvidia-nat pkg
+# uv sync
+
+
+=============  Validate NAT being installed   ========================
+(.venv) [root@oel01 nemo-agent-toolkit]# nat --help
+Usage: nat [OPTIONS] COMMAND [ARGS]...
+
+  Main entrypoint for the NAT CLI
+
+Options:
+  --version                       Show the version and exit.
+  --log-level [debug|info|warning|error|critical]
+                                  Set the logging level  [default: INFO]
+  --help                          Show this message and exit.
+
+Commands:
+  configure     Configure NAT developer preferences.
+  eval          Evaluate a workflow with the specified dataset.
+  info          Provide information about the local NAT environment.
+  mcp           MCP-related commands.
+  object-store  Manage object store operations.
+  optimize      Optimize a workflow with the specified dataset.
+  registry      Utility to configure NAT remote registry channels.
+  run           Run a NAT workflow using the console front end.
+  serve         Run a NAT workflow using the fastapi front end.
+  sizing        Size GPU clusters for workflows with the specified options.
+  start         Run a NAT workflow using a front end configuration.
+  uninstall     Uninstall plugin packages from the local environment.
+  validate      Validate a configuration file
+  workflow      Interact with templated workflows.
+
+(.venv) [root@oel01 nemo-agent-toolkit]# nat --version
+nat, version 1.4.0.dev71+g166dfda1
+
+============  SETUP NVIDIA API KEY =================
+
+(.venv) [root@oel01 nemo-agent-toolkit]# export NVIDIA_API_KEY="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"
+(.venv) [root@oel01 nemo-agent-toolkit]# echo "$NVIDIA_API_KEY" >> ~/.bashrc
+(.venv) [root@oel01 nemo-agent-toolkit]# source ~/.bashrc
+
+
+==============   HELLO WORLD workflow.yml    ===================
+ 
+In any directory you like, create a file called workflow.yml:
+
+functions:
+  # Add a tool to search wikipedia
+  wikipedia_search:
+    _type: wiki_search
+    max_results: 2
+
+llms:
+  # Tell NeMo Agent Toolkit which LLM to use for the agent
+  nim_llm:
+    _type: nim
+    model_name: meta/llama-3.1-70b-instruct
+    temperature: 0.0
+
+workflow:
+  # Use an agent that 'reasons' and 'acts'
+  _type: react_agent
+  # Give it access to our wikipedia search tool
+  tool_names: [wikipedia_search]
+  # Tell it which LLM to use
+  llm_name: nim_llm
+  # Make it verbose
+  verbose: true
+  # Retry up to 3 times
+  parse_agent_response_max_retries: 3
+
+
+
+==================  TEST HELLOW WORLD workflow.yml ====================
+(.venv) [root@oel01 ~]# nat run --config_file workflow.yml --input "list five subspecies of Aardvarks"
+2025-11-18 23:14:38 - WARNING  - nat.runtime.loader:209 - Failed to import plugin 'nat_agents'
+Traceback (most recent call last):
+  File "/root/nemo-agent-toolkit/src/nat/runtime/loader.py", line 188, in discover_and_register_plugins
+    entry_point.load()
+  File "/root/.local/share/uv/python/cpython-3.12.12-linux-x86_64-gnu/lib/python3.12/importlib/metadata/__init__.py", line 205, in load
+    module = import_module(match.group('module'))
+
+if fails....
+
+
+✅ Fix: install the LangChain/LangGraph plugin into your existing venv
+
+You’re already inside the repo venv:
+/root/nemo-agent-toolkit/.venv
+
+Do this:
+
+cd /root/nemo-agent-toolkit
+source .venv/bin/activate   # just in case
+
+# For a source checkout, NVIDIA docs recommend:
+uv pip install -e '.[langchain]'
+or
+uv pip install -e '.[llama-index]'
+or 
+pip install "nvidia-nat[langchain]"
+# OR equivalently
+pip install nvidia-nat-langchain
+
+
+nvidia-nat[agno] or nvidia-nat-agno - Agno
+
+nvidia-nat[crewai] or nvidia-nat-crewai - CrewAI
+
+nvidia-nat[langchain] or nvidia-nat-langchain - LangChain
+
+nvidia-nat[llama-index] or nvidia-nat-llama-index - LlamaIndex
+
+nvidia-nat[mem0ai] or nvidia-nat-mem0ai - Mem0
+
+nvidia-nat[mysql] or nvidia-nat-mysql - MySQL
+
+nvidia-nat[opentelemetry] or nvidia-nat-opentelemetry - OpenTelemetry
+
+nvidia-nat[phoenix] or nvidia-nat-phoenix - Arize Phoenix
+
+nvidia-nat[ragaai] or nvidia-nat-ragaai - RagaAI Catalyst
+
+nvidia-nat[redis] or nvidia-nat-redis - Redis
+
+nvidia-nat[s3] or nvidia-nat-s3 - Amazon S3
+
+nvidia-nat[semantic-kernel] or nvidia-nat-semantic-kernel - Microsoft Semantic Kernel
+
+nvidia-nat[test] or nvidia-nat-test - NeMo Agent toolkit test
+
+nvidia-nat[weave] or nvidia-nat-weave - Weights & Biases Weave
+
+nvidia-nat[zep-cloud] or nvidia-nat-zep-cloud - Zep
+
+(.venv) [root@oel2 nemo-agent-toolkit]# uv pip install -e '.[mem0ai]'
+Resolved 142 packages in 8.43s
+      Built nvidia-nat-mem0ai @ file:///root/nemo-agent-toolkit/packages/nvidia_nat_mem0ai
+      Built nvidia-nat @ file:///root/nemo-agent-toolkit
+Prepared 10 packages in 3.84s
+Uninstalled 2 packages in 6ms
+Installed 10 packages in 105ms
+ + h2==4.3.0
+ + hpack==4.1.0
+ + hyperframe==6.1.0
+ + mem0ai==0.1.118
+ ~ nvidia-nat==1.4.0.dev71+g166dfda1 (from file:///root/nemo-agent-toolkit)
+ + nvidia-nat-mem0ai==1.4.0.dev71+g166dfda1 (from file:///root/nemo-agent-toolkit/packages/nvidia_nat_mem0ai)
+ + portalocker==3.2.0
+ + posthog==7.0.1
+ - protobuf==6.33.0
+ + protobuf==5.29.5
+ + qdrant-client==1.16.0
+(.venv) [root@oel2 nemo-agent-toolkit]#
+
+
+
+
+
+
+(.venv) [root@oel2 nemo-agent-toolkit]# uv pip install -e '.[langchain]'
+Resolved 150 packages in 9.89s
+      Built nvidia-nat @ file:///root/nemo-agent-toolkit
+      Built nvidia-nat-langchain @ file:///root/nemo-agent-toolkit/packages/nvidia_nat_langchain
+Prepared 18 packages in 6.00s
+Uninstalled 1 package in 4ms
+Installed 18 packages in 228ms
+ + fastuuid==0.14.0
+ + filetype==1.2.0
+ + importlib-metadata==8.7.0
+ + langchain-aws==0.2.35
+ + langchain-litellm==0.2.3
+ + langchain-milvus==0.2.1
+ + langchain-nvidia-ai-endpoints==0.3.19
+ + langchain-tavily==0.2.13
+ + langgraph==0.6.11
+ + langgraph-checkpoint==3.0.1
+ + langgraph-prebuilt==0.6.5
+ + langgraph-sdk==0.2.9
+ + litellm==1.80.0
+ ~ nvidia-nat==1.4.0.dev71+g166dfda1 (from file:///root/nemo-agent-toolkit)
+ + nvidia-nat-langchain==1.4.0.dev71+g166dfda1 (from file:///root/nemo-agent-toolkit/packages/nvidia_nat_langchain)
+ + ormsgpack==1.12.0
+ + tokenizers==0.22.1
+ + zipp==3.23.0
+
+
+
+If for some reason uv isn’t in PATH, you can use standard pip instead:
+
+pip install "nvidia-nat[langchain]"
+# OR equivalently
+pip install nvidia-nat-langchain
+(.venv) [root@oel01 ~]# cd nemo-agent-toolkit/
+(.venv) [root@oel01 nemo-agent-toolkit]# source .venv/bin/activate
+(.venv) [root@oel01 nemo-agent-toolkit]# uv pip install -e '.[langchain]'
+Resolved 150 packages in 9.64s
+      Built nvidia-nat @ file:///root/nemo-agent-toolkit
+      Built nvidia-nat-langchain @ file:///root/nemo-agent-toolkit/packages/nvidia_nat_langchain
+Prepared 10 packages in 3.83s
+Uninstalled 1 package in 0.84ms
+Installed 18 packages in 168ms
+ + fastuuid==0.14.0
+ + filetype==1.2.0
+
+
+====== TRY AGAIN  ============
+nat run --config_file workflow.yml --input "list five subspecies of Aardvarks"
+
+(.venv) [root@oel01 ~]# cat workflow.yml
+functions:
+  # Add a tool to search wikipedia
+  wikipedia_search:
+    _type: wiki_search
+    max_results: 2
+
+llms:
+  # Tell NeMo Agent Toolkit which LLM to use for the agent
+  nim_llm:
+    _type: nim
+    model_name: meta/llama-3.1-70b-instruct
+    temperature: 0.0
+
+workflow:
+  # Use an agent that 'reasons' and 'acts'
+  _type: react_agent
+  # Give it access to our wikipedia search tool
+  tool_names: [wikipedia_search]
+  # Tell it which LLM to use
+  llm_name: nim_llm
+  # Make it verbose
+  verbose: true
+  # Retry up to 3 times
+  parse_agent_response_max_retries: 3
+
+
+======= TRY CHAT-ONLY workflow =======
+
+# nat run --config_file chat.yml --input "Explain what NeMo Agent Toolkit is in simple terms."
+
+(.venv) [root@oel01 ~]# cat chat.yml
+llms:
+  nim_llm:
+    _type: nim
+    model_name: meta/llama-3.1-70b-instruct
+    temperature: 0.2
+
+workflow:
+  _type: chat_completion
+  llm_name: nim_llm
+  verbose: true
+
+
+
+
+
+
+
+
+
+
+
+
